@@ -44,8 +44,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 @Component
 export default class Timer extends Vue {
 
-  private selectedTime = "00:01:00";
-  private selectedTimeCpy = "00:01:00";
+  private selectedTime = "00:00:30";
+  private selectedTimeCpy = "00:00:30";
   private pollingEvent?: number = -1;
 
   @Prop() private msg!: string;
@@ -59,7 +59,6 @@ export default class Timer extends Vue {
       }
 
       if(this.pollingEvent == -1){
-        console.log(this.$refs.timepicker)
         this.pollingEvent = setInterval(()=>{this.timerEvent()}, 1000);
       }
       else{
