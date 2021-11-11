@@ -34,7 +34,6 @@
           :disabled="selectedTime === '00:00:00'">Clear</v-btn>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -43,6 +42,10 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Timer extends Vue {
+
+  $refs!: {
+    timepicker: HTMLFormElement
+  }
 
   private selectedTime = "00:00:30";
   private selectedTimeCpy = "00:00:30";
@@ -59,6 +62,7 @@ export default class Timer extends Vue {
       }
 
       if(this.pollingEvent == -1){
+        this.$refs.timepicker.selecting = 3
         this.pollingEvent = setInterval(()=>{this.timerEvent()}, 1000);
       }
       else{
