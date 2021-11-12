@@ -1,5 +1,5 @@
 <template>
-  <div class="timer">
+  <div :class="[{'timer':true},{'alarm':soundAlarm}]">
 
     <v-time-picker
       format="24hr"
@@ -7,6 +7,7 @@
       use-seconds
       @input="BackupTime()"
       ref="timepicker"
+      :color="clockColor"
     ></v-time-picker>
 
     <div >
@@ -38,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Timer extends Vue {
@@ -50,62 +51,78 @@ export default class Timer extends Vue {
   private selectedTime = "00:00:30";
   private selectedTimeCpy = "00:00:30";
   private pollingEvent?: number = -1;
+  private pollingEventColour?: number = -1;
+  private clockColor = "primary";
+  private soundAlarm = false;
 
-  @Prop() private msg!: string;
+  public toggleflashColourFinish() : void {
+    if(this.pollingEventColour === -1){
+       this.pollingEventColour = setInterval(()=>{this.toggleColour()}, 500);
+    }
+    else{
+       clearInterval(this.pollingEventColour)
+    }
+  }
+
+   public toggleColour(): void {      
+      if(this.clockColor == "primary")
+      {
+         this.clockColor = "error";
+      }
+      else{
+          this.clockColor = "primary";
+      }
+   }
 
   public triggerTimer(): void {    
 
     try{
+
       if(this.selectedTime === "00:00:00")
       {
         throw "No Time Set";
       }
 
-      if(this.pollingEvent == -1){
-        this.$refs.timepicker.selecting = 3
+      if(this.pollingEvent === -1){
+        this.$refs.timepicker.selecting = 3;
         this.pollingEvent = setInterval(()=>{this.timerEvent()}, 1000);
       }
       else{
-        clearInterval(this.pollingEvent);
-        this.pollingEvent = -1;
+         this.CancelEvent();
       }
     }
     catch(e){
-      console.log(e)
+      console.log(e);
     }    
   }
   
-  public BackupTime() :void{
-
+  public BackupTime() : void{
+    this.CancelEvent();
     this.selectedTimeCpy = JSON.parse(JSON.stringify(this.selectedTime));
   }
 
-  public RevertBackupTime() :void{
-
+  public RevertBackupTime() : void{
     this.selectedTime = JSON.parse(JSON.stringify(this.selectedTimeCpy));
     this.CancelEvent();
   }
 
-  public ClearSelection() :void{
-
+  public ClearSelection() : void{
     this.selectedTime = "00:00:00";
     this.selectedTimeCpy = "00:00:00";
     this.CancelEvent();
   }
 
-  public CancelEvent(): void {
-    
+  public CancelEvent(): void {    
     if(this.pollingEvent !== -1)
     {
       clearInterval(this.pollingEvent);
-      this.pollingEvent = -1
+      this.pollingEvent = -1;
     }
   }
 
   public timerEvent(): void{
-
     let selectedDateTime = new Date('1970-01-01T' + this.selectedTime);
-    selectedDateTime.setTime(selectedDateTime.getTime() - 1000)
+    selectedDateTime.setTime(selectedDateTime.getTime() - 1000);
     
     this.selectedTime = `${selectedDateTime.getHours()<10 ? '0' + selectedDateTime.getHours() : selectedDateTime.getHours()}:` +
                         `${selectedDateTime.getMinutes()<10 ? '0' + selectedDateTime.getMinutes() : selectedDateTime.getMinutes()}:` +
@@ -113,6 +130,13 @@ export default class Timer extends Vue {
 
     if(this.selectedTime === "00:00:00")
     {
+      this.soundAlarm = true;
+      this.toggleflashColourFinish();
+      setTimeout(()=>{
+         this.soundAlarm = false; 
+         this.toggleflashColourFinish();
+         this.clockColor = "primary";
+      },5000);
       this.CancelEvent();
     }
   }
@@ -142,4 +166,30 @@ li {
 a {
   color: #42b983;
 }
+
+.alarm {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both infinite;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
 </style>
