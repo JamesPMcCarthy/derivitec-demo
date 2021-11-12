@@ -61,6 +61,7 @@ export default class Timer extends Vue {
     }
     else{
        clearInterval(this.pollingEventColour)
+       this.pollingEventColour = -1;
     }
   }
 
