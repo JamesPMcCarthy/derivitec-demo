@@ -144,18 +144,18 @@ export default class Timer extends Vue {
   
   /* Fucntion to reduce clock time by one second give us a countdown */
   public timerEvent(): void{
-    /* store current clock time in date object to allow easy of substracting 1 second from time */
+    /* Store current clock time in date object to allow easy of substracting 1 second from time */
     let selectedDateTime = new Date('1970-01-01T' + this.selectedTime);
 
-    /*Change time to be 1 second less */
+    /*Change time to be 1 second less than current timer time*/
     selectedDateTime.setTime(selectedDateTime.getTime() - 1000);
     
-    /*Formt time back to string that timepicker components can understand i.e. "00:30:00" with two digit numbers */
+    /*Format time back to string format that timepicker components can understand i.e. "00:30:00" - with two digit numbers */
     this.selectedTime = `${selectedDateTime.getHours()<10 ? '0' + selectedDateTime.getHours() : selectedDateTime.getHours()}:` +
                         `${selectedDateTime.getMinutes()<10 ? '0' + selectedDateTime.getMinutes() : selectedDateTime.getMinutes()}:` +
                         `${selectedDateTime.getSeconds()<10 ? '0' + selectedDateTime.getSeconds() : selectedDateTime.getSeconds()}`;  
 
-   /* if countdown has reached then end trigger alarm effects */
+   /* If countdown has reached zeros then end trigger alarm effects */
     if(this.selectedTime === "00:00:00")
     {
       this.soundAlarm = true;
